@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Model Q — Results</title>
+<style>
+:root {
+  --ink:#000; --surface:#0a0a0a; --rule:#1f1f1f;
+  --dim:#8a8a8a; --mid:#a8a8a8; --bright:#f2f0ed; --max:#fff;
+  --alert:#b8734a;
+  --ease:cubic-bezier(0.22,0.61,0.36,1);
+  --dur:420ms;
+  --s1:8px; --s2:16px; --s3:28px; --s4:48px; --s5:80px; --s6:128px;
+  --face:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Inter,system-ui,sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { background:var(--ink); }
+body {
+  background:var(--ink); color:var(--bright); font-family:var(--face);
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  padding:var(--s5) var(--s3) var(--s6);
+}
+.page { max-width:46rem; margin:0 auto; }
+
+/* entrance motion — fade + gentle rise, staggered */
+.rise { opacity:0; transform:translateY(12px);
+        transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.rise.in { opacity:1; transform:none; }
+@media (prefers-reduced-motion:reduce) {
+  :root { --dur:1ms; }
+  .rise { transform:none !important; }
+  .rise,.rise.in,* { transition-duration:1ms !important; animation-duration:1ms !important; }
+}
+
+.eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.28em;
+            text-transform:uppercase; color:var(--dim); }
+.masthead { display:flex; justify-content:space-between; align-items:baseline;
+             gap:var(--s2); padding-bottom:var(--s2);
+             border-bottom:1px solid var(--rule); }
+.window { margin-top:var(--s2); }
+
+/* hero */
+.hero { padding:var(--s5) 0 var(--s4); border-bottom:1px solid var(--rule); }
+.hero-num { font-size:clamp(5rem,22vw,9rem); font-weight:800; line-height:.86;
+             letter-spacing:-.05em; color:var(--max);
+             font-variant-numeric:tabular-nums; }
+.hero-num .pc { font-size:.34em; letter-spacing:-.02em; margin-left:.08em;
+                 color:var(--mid); vertical-align:super; }
+.hero-sub { margin-top:var(--s3); font-size:1.0625rem; font-weight:600;
+             color:var(--mid); font-variant-numeric:tabular-nums; }
+.stats { display:flex; flex-wrap:wrap; gap:var(--s4); margin-top:var(--s4); }
+.stat-n { font-size:1.5rem; font-weight:800; font-variant-numeric:tabular-nums; }
+.stat-l { font-size:.625rem; letter-spacing:.2em; text-transform:uppercase;
+           color:var(--dim); margin-top:2px; }
+
+section { padding:var(--s5) 0 0; }
+.shead { padding-bottom:var(--s3); }
+
+/* rows */
+.drow,.crow { display:flex; align-items:baseline; gap:var(--s2);
+               padding:var(--s2) 0; border-bottom:1px solid var(--rule); }
+.dlabel { flex:1; color:var(--mid); font-size:.8125rem;
+           font-variant-numeric:tabular-nums; }
+.drec { font-weight:700; font-variant-numeric:tabular-nums; }
+.dpct { min-width:4.5rem; text-align:right; font-weight:700;
+         font-variant-numeric:tabular-nums; }
+.clabel { flex:1 1 auto; min-width:0; font-size:.9375rem; }
+.clabel.dimmed { color:var(--dim); }
+.crate { font-size:1.125rem; font-weight:800; min-width:5rem; text-align:right;
+          font-variant-numeric:tabular-nums; }
+.cstate { font-size:.75rem; color:var(--dim); font-style:italic; }
+.cn { min-width:6rem; text-align:right; font-size:.6875rem; color:var(--dim);
+       font-variant-numeric:tabular-nums; }
+
+/* Under-50% treatment: MORE weight, never less. Marker + rule + label. */
+.row-under { border-left:2px solid var(--alert); padding-left:var(--s2);
+              margin-left:calc(var(--s2) * -1 - 2px); }
+.mark { color:var(--alert); margin-right:.4em; font-size:.8em; }
+.under-tag { font-size:.5625rem; letter-spacing:.18em; text-transform:uppercase;
+              color:var(--alert); border:1px solid var(--alert);
+              padding:2px 6px; margin-left:var(--s1); white-space:nowrap; }
+.row-under .crate,.row-under .dpct,.row-under .tier-rate { color:var(--max); }
+
+/* tiers */
+.tier { padding:var(--s3) 0; border-bottom:1px solid var(--rule); }
+.tier-head { display:flex; align-items:center; gap:var(--s2); margin-bottom:var(--s2); }
+.tier-key { font-size:1.75rem; font-weight:800; letter-spacing:-.03em;
+             min-width:1.4em; }
+.tier-s,.tier-a,.tier-b,.tier-c { color:var(--bright); }
+.tier-rate { font-size:2.5rem; font-weight:800; letter-spacing:-.04em;
+              font-variant-numeric:tabular-nums; margin-left:auto; }
+.tier-meta { font-size:.6875rem; color:var(--dim); margin-top:var(--s1);
+              font-variant-numeric:tabular-nums; }
+.meter { height:2px; background:#242424; overflow:hidden; }
+.meter-fill { height:100%; background:var(--bright);
+               transform-origin:left; transition:width var(--dur) var(--ease); }
+.meter-fill.high { background:var(--max); }
+.meter-fill.mid { background:var(--bright); }
+.meter-fill.low { background:var(--mid); }
+.meter-fill.losing { background:var(--alert); }
+.meter-fill.empty { background:transparent; }
+
+.badge { font-size:.5625rem; letter-spacing:.18em; text-transform:uppercase;
+          color:var(--mid); border:1px solid var(--rule); padding:2px 6px;
+          margin-left:var(--s1); white-space:nowrap; }
+
+/* calibration */
+svg .grid { stroke:var(--rule); stroke-width:1; }
+svg .perfect { stroke:var(--dim); stroke-width:1; stroke-dasharray:3 4; }
+svg .pt { fill:var(--bright); stroke:var(--ink); stroke-width:1.5; }
+svg .ax { font-size:9px; fill:var(--dim); font-family:var(--face);
+           font-variant-numeric:tabular-nums; }
+.legend { display:flex; gap:var(--s3); margin-top:var(--s2);
+           font-size:.625rem; color:var(--dim); }
+.legend span { display:flex; align-items:center; gap:6px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--bright); }
+.dash { width:16px; border-top:1px dashed var(--dim); }
+
+.lede { color:var(--mid); font-size:.8125rem; max-width:34rem;
+         margin-bottom:var(--s3); }
+.fine { font-size:.6875rem; color:var(--dim); margin-top:var(--s2); }
+.void-note { font-size:.8125rem; color:var(--dim); font-style:italic;
+              padding:var(--s3) 0; }
+footer { margin-top:var(--s5); padding-top:var(--s3);
+          border-top:1px solid var(--rule); }
+footer p { font-size:.6875rem; color:var(--dim); line-height:1.8; }
+
+/* Narrow widths: stack each row so labels never wrap mid-phrase and the
+   sample-size column stops clipping at the right edge. */
+@media (max-width:34rem) {
+  body { padding:var(--s4) var(--s2) var(--s5); }
+  .crow,.drow { flex-wrap:wrap; row-gap:var(--s1); }
+  .clabel,.dlabel { flex:0 0 100%; }
+  .crate,.drec { margin-left:0; text-align:left; min-width:0; }
+  .cn,.dpct { margin-left:auto; text-align:right; }
+  .tier-rate { font-size:2rem; }
+  .stats { gap:var(--s3); }
+  /* The desktop rule pulls -18px, which exceeds the 16px padding here and
+     clipped the amber marker off-screen entirely. Pull less than the padding. */
+  .row-under { margin-left:calc(var(--s1) * -1 - 2px); padding-left:var(--s1); }
+}
+.colophon { margin-top:var(--s3); padding:var(--s3);
+             border:1px solid var(--rule); }
+.colophon p { font-size:.6875rem; color:var(--mid); line-height:1.9; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="rise">
+  <div class="masthead">
+    <span class="eyebrow">Model Q — Picks Tracker</span>
+    <span class="eyebrow">Updated 2026-08-21 23:26</span>
+  </div>
+  <div class="eyebrow window">All-Time · 2026-07-21 – 2026-08-20</div>
+</header>
+
+<div class="hero rise">
+  <div class="eyebrow">Overall Hit Rate</div>
+  <div class="hero-num" style="margin-top:var(--s3)">68.0<span class="pc">%</span></div>
+  <div class="hero-sub">7084–3336 settled props</div>
+  <div class="stats">
+    <div><div class="stat-n">10420</div><div class="stat-l">Settled</div></div>
+    <div><div class="stat-n">7084</div><div class="stat-l">Wins</div></div>
+    <div><div class="stat-n">3336</div><div class="stat-l">Losses</div></div>
+    <div><div class="stat-n">586</div><div class="stat-l">Voided</div></div>
+  </div>
+  <p class="fine">586 voided — postponed or scratched, excluded from every rate</p>
+</div>
+
+<section class="rise">
+  <div class="shead eyebrow">By Date</div>
+  <div class="drow "><span class="dlabel">2026-07-21</span><span class="drec">169–70</span><span class="dpct">71%</span></div>
+<div class="drow "><span class="dlabel">2026-08-01</span><span class="drec">336–134</span><span class="dpct">71%</span></div>
+<div class="drow "><span class="dlabel">2026-08-04</span><span class="drec">300–152</span><span class="dpct">66%</span></div>
+<div class="drow "><span class="dlabel">2026-08-06</span><span class="drec">253–84</span><span class="dpct">75%</span></div>
+<div class="drow "><span class="dlabel">2026-08-07</span><span class="drec">618–298</span><span class="dpct">67%</span></div>
+<div class="drow "><span class="dlabel">2026-08-10</span><span class="drec">276–129</span><span class="dpct">68%</span></div>
+<div class="drow "><span class="dlabel">2026-08-11</span><span class="drec">589–329</span><span class="dpct">64%</span></div>
+<div class="drow "><span class="dlabel">2026-08-12</span><span class="drec">606–280</span><span class="dpct">68%</span></div>
+<div class="drow "><span class="dlabel">2026-08-13</span><span class="drec">339–216</span><span class="dpct">61%</span></div>
+<div class="drow "><span class="dlabel">2026-08-14</span><span class="drec">531–264</span><span class="dpct">67%</span></div>
+<div class="drow "><span class="dlabel">2026-08-15</span><span class="drec">611–273</span><span class="dpct">69%</span></div>
+<div class="drow "><span class="dlabel">2026-08-16</span><span class="drec">595–272</span><span class="dpct">69%</span></div>
+<div class="drow "><span class="dlabel">2026-08-17</span><span class="drec">447–142</span><span class="dpct">76%</span></div>
+<div class="drow "><span class="dlabel">2026-08-18</span><span class="drec">588–290</span><span class="dpct">67%</span></div>
+<div class="drow "><span class="dlabel">2026-08-19</span><span class="drec">470–231</span><span class="dpct">67%</span></div>
+<div class="drow "><span class="dlabel">2026-08-20</span><span class="drec">356–172</span><span class="dpct">67%</span></div>
+</section>
+
+<section class="rise">
+  <div class="shead eyebrow">By Confidence Tier</div>
+  
+<div class="tier ">
+  <div class="tier-head">
+    <span class="tier-key tier-s">S</span>
+    <span class="tier-rate">68.3%</span>
+  </div>
+  <div class="meter"><div class="meter-fill mid" style="width:68.3%"></div></div>
+  <div class="tier-meta">60 settled · 3 voided</div>
+</div>
+
+<div class="tier ">
+  <div class="tier-head">
+    <span class="tier-key tier-a">A</span>
+    <span class="tier-rate">74.9%</span>
+  </div>
+  <div class="meter"><div class="meter-fill mid" style="width:74.9%"></div></div>
+  <div class="tier-meta">1683 settled · 87 voided</div>
+</div>
+
+<div class="tier ">
+  <div class="tier-head">
+    <span class="tier-key tier-b">B</span>
+    <span class="tier-rate">67.8%</span>
+  </div>
+  <div class="meter"><div class="meter-fill mid" style="width:67.8%"></div></div>
+  <div class="tier-meta">6031 settled · 298 voided</div>
+</div>
+
+<div class="tier ">
+  <div class="tier-head">
+    <span class="tier-key tier-c">C</span>
+    <span class="tier-rate">65.3%</span>
+  </div>
+  <div class="meter"><div class="meter-fill mid" style="width:65.3%"></div></div>
+  <div class="tier-meta">2209 settled · 189 voided</div>
+</div>
+  <p class="fine">Tiers reflect model confidence at the time of the pick, not
+  post-hoc assignment. Every tier is shown regardless of record — a tier below
+  50% is marked, not hidden.</p>
+</section>
+
+<section class="rise">
+  <div class="shead eyebrow">By Category</div>
+  
+<div class="crow ">
+  <span class="clabel">HR + R + RBI</span>
+  <span class="crate">68.0%</span>
+  <span class="cn">n=2043 +140v</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Hits</span>
+  <span class="crate">63.7%</span>
+  <span class="cn">n=1123 +64v</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Strikeouts (batter)</span>
+  <span class="crate">68.0%</span>
+  <span class="cn">n=1138 +101v</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Total Bases</span>
+  <span class="crate">63.4%</span>
+  <span class="cn">n=1081 +52v</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Fantasy Score</span>
+  <span class="crate">73.2%</span>
+  <span class="cn">n=3913 +229v</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Walks (batter)</span>
+  <span class="crate">50%*</span> <span class="badge">low n</span>
+  <span class="cn">n=24</span>
+</div>
+
+<div class="crow row-under">
+  <span class="clabel">Runs</span>
+  <span class="crate"><span class="mark">▼</span>41%*</span><span class="under-tag">below</span> <span class="badge">low n</span>
+  <span class="cn">n=34</span>
+</div>
+
+<div class="crow">
+  <span class="clabel dimmed">RBI</span>
+  <span class="cstate">building sample</span>
+  <span class="cn">—</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Pitcher Strikeouts</span>
+  <span class="crate">58.0%</span>
+  <span class="cn">n=283</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Pitcher Walks</span>
+  <span class="crate">60.9%</span>
+  <span class="cn">n=215</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Pitcher Earned Runs</span>
+  <span class="crate">62.5%</span>
+  <span class="cn">n=299</span>
+</div>
+
+<div class="crow ">
+  <span class="clabel">Pitcher Hits Allowed</span>
+  <span class="crate">56.2%</span>
+  <span class="cn">n=267</span>
+</div>
+  <p class="fine">* shown at reduced precision — fewer than 50 settled props.</p>
+</section>
+
+<section class="rise">
+  <div class="shead eyebrow">Calibration — Predicted vs Actual</div>
+  <p class="lede">Each dot is one confidence bucket; size reflects sample count.
+  A well-calibrated model tracks the dashed diagonal. Buckets with fewer than
+  20 settled props are excluded rather than shown thin.</p>
+  <svg viewBox="0 0 300 214" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Predicted versus actual hit rate" style="width:100%;max-width:300px;overflow:visible;">
+<line x1="38.0" y1="12" x2="38.0" y2="180" class="grid"/>
+<text x="38.0" y="195" text-anchor="middle" class="ax">0</text>
+<line x1="100.0" y1="12" x2="100.0" y2="180" class="grid"/>
+<text x="100.0" y="195" text-anchor="middle" class="ax">25</text>
+<text x="30" y="141.5" text-anchor="end" class="ax">25</text>
+<line x1="162.0" y1="12" x2="162.0" y2="180" class="grid"/>
+<text x="162.0" y="195" text-anchor="middle" class="ax">50</text>
+<text x="30" y="99.5" text-anchor="end" class="ax">50</text>
+<line x1="224.0" y1="12" x2="224.0" y2="180" class="grid"/>
+<text x="224.0" y="195" text-anchor="middle" class="ax">75</text>
+<text x="30" y="57.5" text-anchor="end" class="ax">75</text>
+<line x1="286.0" y1="12" x2="286.0" y2="180" class="grid"/>
+<text x="286.0" y="195" text-anchor="middle" class="ax">100</text>
+<text x="30" y="15.5" text-anchor="end" class="ax">100</text>
+<line x1="38.0" y1="180.0" x2="286.0" y2="12.0" class="perfect"/>
+<circle cx="87.6" cy="106.1" r="4.0" class="pt"><title>Predicted 20% - actual 44.0% (n=25)</title></circle>
+<circle cx="112.4" cy="60.0" r="4.1" class="pt"><title>Predicted 30% - actual 71.4% (n=42)</title></circle>
+<circle cx="137.2" cy="90.8" r="4.7" class="pt"><title>Predicted 40% - actual 53.1% (n=162)</title></circle>
+<circle cx="162.0" cy="83.1" r="6.0" class="pt"><title>Predicted 50% - actual 57.7% (n=709)</title></circle>
+<circle cx="186.8" cy="72.8" r="8.2" class="pt"><title>Predicted 60% - actual 63.8% (n=2482)</title></circle>
+<circle cx="211.6" cy="65.1" r="10.0" class="pt"><title>Predicted 70% - actual 68.4% (n=4736)</title></circle>
+<circle cx="236.4" cy="53.5" r="7.7" class="pt"><title>Predicted 80% - actual 75.3% (n=1999)</title></circle>
+<circle cx="261.2" cy="39.7" r="5.0" class="pt"><title>Predicted 90% - actual 83.5% (n=261)</title></circle>
+</svg>
+  <div class="legend">
+    <span><i class="dot"></i>Model bucket</span>
+    <span><i class="dash"></i>Perfect calibration</span>
+  </div>
+</section>
+
+<footer class="rise">
+  <p>Total sample: 10420 settled props across 16 dates.</p>
+  <p>Voided outcomes — postponed games, scratched players — are excluded from every rate.</p>
+  <p>Over-line prop analysis only. No guaranteed win rate exists.</p>
+  <div class="colophon">
+    <p>All results are real and unfiltered, pulled directly from the model's
+    outcome database. No cherry-picking of date ranges or categories. Losing
+    records carry a marker and heavier contrast so they read louder, not
+    quieter, than winning ones. Sample size appears on every figure; interpret
+    small-n results with caution. This is a record of what happened, not a
+    prediction of what will.</p>
+  </div>
+</footer>
+
+</div>
+<script>
+(function () {
+  var els = document.querySelectorAll('.rise');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) {
+    els.forEach(function (el) { el.classList.add('in'); });
+    return;
+  }
+  // Stagger the entrance so sections settle in sequence rather than together.
+  els.forEach(function (el, i) {
+    setTimeout(function () { el.classList.add('in'); }, 60 + i * 90);
+  });
+})();
+</script>
+</body>
+</html>
